@@ -59,6 +59,7 @@ custom:
     domain: my-custom-domain.com
     certificate: arn:aws:acm:us-east-1:...     # The ARN for the SSL cert to use form AWS CertificateManager
     bucketName: webapp-deploy                  # Unique name for the S3 bucket to host the client assets
+    omitBucketPrefix: false                    # If 'true', will not prefix bucketName with `${self:service}-${self:provider.stage}-`
     distributionFolder: client/dist            # Path to the client assets to be uploaded to S3
     indexDocument: index.html                  # The index document to use
     errorDocument: error.html                  # The error document to use
@@ -134,6 +135,22 @@ custom:
 ```
 
 Use this parameter to specify a unique name for the S3 bucket that your files will be uploaded to.
+
+---
+
+**omitBucketPrefix**
+
+_optional_, default: `false`
+
+```yaml
+custom:
+  fullstack:
+    ...
+    omitBucketPrefix: false
+    ...
+```
+
+Set this parameter to `true` to create an S3 bucket that precisely matches `bucketName` without the {service}-{stage} prefix
 
 ---
 

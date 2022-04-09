@@ -66,7 +66,7 @@ class ServerlessFullstackPlugin {
 
         return this.validateConfig()
             .then(() => {
-                bucketName = this.getBucketName(this.options.bucketName);
+                bucketName = this.getBucketName(this.options.bucketName, this.options.omitBucketPrefix);
                 return (this.cliOptions.confirm === false || this.options.noConfirm === true) ? true : new Confirm(`Are you sure you want to delete bucket '${bucketName}'?`).run();
             })
             .then(goOn => {
@@ -174,7 +174,7 @@ class ServerlessFullstackPlugin {
 
                     distributionFolder = this.options.distributionFolder || path.join('client/dist');
                     clientPath = path.join(this.serverless.config.servicePath, distributionFolder);
-                    bucketName = this.getBucketName(this.options.bucketName);
+                    bucketName = this.getBucketName(this.options.bucketName, this.options.omitBucketPrefix);
                     headerSpec = this.options.objectHeaders;
                     indexDoc = this.options.indexDocument || "index.html";
                     errorDoc = this.options.errorDocument || "error.html";
@@ -513,9 +513,10 @@ class ServerlessFullstackPlugin {
 
     prepareS3(resources) {
         const bucketName = this.getConfig('bucketName', null);
+        const omitBucketPrefix = this.getConfig('omitBucketPrefix', false);
 
         if (bucketName !== null) {
-            const stageBucketName = this.getBucketName(bucketName);
+            const stageBucketName = this.getBucketName(bucketName, omitBucketPrefix);
             this.serverless.cli.log(`Setting up '${stageBucketName}' bucket...`);
             resources.WebAppS3Bucket.Properties.BucketName = stageBucketName;
             resources.WebAppS3BucketPolicy.Properties.Bucket = stageBucketName;
@@ -544,8 +545,8 @@ class ServerlessFullstackPlugin {
         );
     }
 
-    getBucketName(bucketName) {
-        const stageBucketName = `${this.serverless.service.service}-${this.getStage()}-${bucketName}`;
+    getBucketName(bucketName, omitBucketPrefix) {
+        const stageBucketName = omitBucketPrefix ? bucketName : `${this.serverless.service.service}-${this.getStage()}-${bucketName}`;
         return stageBucketName;
     }
 
