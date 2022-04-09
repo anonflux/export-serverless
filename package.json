@@ -1,16 +1,16 @@
 {
-  "name": "fullstack-serverless",
-  "version": "0.8.0",
+  "name": "@animus-bi/fs-sls",
+  "version": "0.9.1-beta.2",
   "engines": {
     "node": ">=4.0"
   },
   "description": "Deploy a fullstack serverless web app (including React, Angular, Node.js, Python) with an AWS CloudFront distribution in front of your API Gateway and static content from S3. Use your own custom domain, SSL from AWS, and AWS Web Application Firewall.",
-  "author": "MadSkills.io",
+  "author": "Animus-BI",
   "license": "MIT",
-  "homepage": "https://www.madskills.io/fullstack-serverless",
+  "homepage": "https://github.com/animus-bi/fs-sls.git",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MadSkills-io/fullstack-serverless"
+    "url": "https://github.com/animus-bi/fs-sls.git"
   },
   "keywords": [
     "serverless",
@@ -37,5 +37,19 @@
     "lodash": "^4.13.1",
     "mime": "^1.2.11",
     "prompt-confirm": "^1.2.0"
+  },
+  "scripts": {
+    "amendCommit": "git add . -A && git commit --amend --no-edit",
+    "version:branch": "npm version prerelease --preid $(git rev-parse --short=8 HEAD^) --no-git-tag",
+    "prepublish:branch": "npm run version:branch",
+    "publish:branch": "npm publish --tag $(git rev-parse --short=8 HEAD^) --access public",
+    "postpublish:branch": "npm run amendCommit",
+    "version:beta": "npm version prerelease --preid beta --no-git-tag",
+    "prepublish:beta": "npm run version:beta",
+    "publish:beta": "npm publish --tag beta --access public",
+    "postpublish:beta": "npm run amendCommit",
+    "version:minor": "npm version minor --no-git-tag",
+    "publish:minor": "npm publish --tag minor --access public",
+    "publish:latest": "npm publish --tag latest --access public"
   }
 }

@@ -1,13 +1,8 @@
-# fullstack-serverless
-
-[![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
-[![npm version](https://badge.fury.io/js/fullstack-serverless.svg)](https://badge.fury.io/js/fullstack-serverless)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/MadSkills-io/fullstack-serverless/master/LICENSE)
-[![npm downloads](https://img.shields.io/npm/dt/fullstack-serverless.svg?style=flat)](https://www.npmjs.com/package/fullstack-serverless)
+# fs-sls
 
 A [serverless](http://www.serverless.com) plugin that automatically creates an AWS CloudFront distribution that serves static web content from S3 and optionally routes API traffic to API Gateway.  
 
-Home page - https://www.madskills.io/fullstack-serverless/
+Home page - https://github.com/animus-bi/fs-sls
 
 **:zap: Pros**
 
@@ -34,12 +29,12 @@ npm install -g serverless
 #### Installation
 
 ```bash
-npm install --save-dev fullstack-serverless
+npm install --save-dev @animus-bi/fs-sls
 ```
 
 #### Configuration
 
-* All fullstack-serverless configuration parameters are optional - e.g. don't provide ACM Certificate ARN
+* All fs-sls configuration parameters are optional - e.g. don't provide ACM Certificate ARN
   to use default CloudFront certificate (which works only for default cloudfront.net domain).
 * This plugin **does not** set-up automatically Route53 for newly created CloudFront distribution.
   After creating CloudFront distribution, manually add Route53 ALIAS record pointing to your
@@ -52,10 +47,10 @@ npm install --save-dev fullstack-serverless
 # add to your serverless.yml
 
 plugins:
-  - fullstack-serverless
+  - '@animus-bi/fs-sls'
 
 custom:
-  fullstack:
+  fs-sls:
     domain: my-custom-domain.com
     certificate: arn:aws:acm:us-east-1:...     # The ARN for the SSL cert to use form AWS CertificateManager
     bucketName: webapp-deploy                  # Unique name for the S3 bucket to host the client assets
@@ -69,6 +64,7 @@ custom:
       - /error.html
     compressWebContent: true                   # Use compression when serving web content
     apiPath: api                               # The path prefix for your API Gateway lambdas. The path for the lambda http event trigger needs to start with this too eg. api/myMethod
+    originPath: /${self:provider.stage}         # The origin path attached to the CloudFront <-> API Gateway reverse proxy
     apiGatewayRestApiId: a12bc34df5            # If "Api Gateway Rest Api" is not part of the same serverless template, you can set your API id here 
     clientCommand: gulp dist                   # Command to generate the client assets. Defaults to doing nothing
     clientSrcPath: client                      # The path to where you want to run the clientCommand
@@ -128,7 +124,7 @@ _required_
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     bucketName: [unique-s3-bucketname]
     ...
@@ -144,7 +140,7 @@ _optional_, default: `false`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     omitBucketPrefix: false
     ...
@@ -160,7 +156,7 @@ _optional_, default: `client/dist`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     distributionFolder: [path/to/files]
     ...
@@ -176,7 +172,7 @@ _optional_, default: `api`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     apiPath: api
     ...
@@ -197,6 +193,21 @@ functions:
         method: post
         integration: lambda
 ```
+---
+
+**originPath**
+
+_optional_, default: `/${self:provider.stage}`
+
+```yaml
+custom:
+  fs-sls:
+    ...
+    originPath: /customOriginPath
+    ...
+```
+
+Use this parameter to specify the origin path that CloudFront will use to reverse proxy requests to API Gateway.
 
 ---
 
@@ -206,7 +217,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     apiGatewayRestApiId: a12bc34df5
     ...
@@ -223,7 +234,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     certificate: arn:aws:acm:us-east-1:...
     ...
@@ -239,7 +250,7 @@ _optional_, default: `index.html`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     indexDocument: [file-name.ext]
     ...
@@ -255,7 +266,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     domain: my-custom-domain.com
     ...
@@ -264,7 +275,7 @@ custom:
 `domain` can be a list, if you want to add more domains:
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     domain:
     - my-custom-domain.com
@@ -282,7 +293,7 @@ _optional_, default: `error.html`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     errorDocument: [file-name.ext]
     ...
@@ -298,7 +309,7 @@ _optional_, no default
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     objectHeaders:
       ALL_OBJECTS:
@@ -331,7 +342,7 @@ _optional_, default: `false`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     singlePageApp: true
     ...
@@ -347,7 +358,7 @@ _optional_, default: `['/*']`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     invalidationPaths:
       - /index.html
@@ -365,7 +376,7 @@ _optional_, default: `true`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     compressWebContent: true
     ...
@@ -381,7 +392,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     clientCommand: [command to generate your client (e.g. gulp dist)]
     ...
@@ -397,7 +408,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     clientSrcPath: [path/to/your/client]
     ...
@@ -413,7 +424,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     waf: [web application firewall ARN]
     ...
@@ -429,7 +440,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     logging:
       bucket: my-bucket.s3.amazonaws.com
@@ -447,7 +458,7 @@ _optional_, default: `PriceClass_All`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     priceClass: PriceClass_100
     ...
@@ -463,7 +474,7 @@ _optional_, default: `TLSv1`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     minimumProtocolVersion: TLSv1.2_2018
     ...
@@ -482,7 +493,7 @@ _optional_, default: `false`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     noConfirm: true
     ...
@@ -498,7 +509,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     origins:
       - Id: Media
@@ -525,7 +536,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     defaultCacheBehavior:
       MinTTL: 3600
@@ -540,7 +551,7 @@ _optional_, default: `not set`
 
 ```yaml
 custom:
-  fullstack:
+  fs-sls:
     ...
     cacheBehaviors:
       - TargetOriginId: Media
@@ -635,21 +646,10 @@ Use this parameter if you do not want to invalidate the CloudFront distribution.
 ---
 
 ## Maintainers
-- Andy Hahn - [andrewphahn](https://github.com/andrewphahn) from [_MadSkills.io_](http://madskills.io)
+- Jeremy Wells - [jeremymwells](https://github.com/jeremymwells)
 
 ## Contributors
-- [jlaramie](https://github.com/jlaramie)
-- [superandrew213](https://github.com/superandrew213)
-- [harmon25](https://github.com/harmon25)
-- [jmortlock](https://github.com/jmortlock)
-- [haochang](https://github.com/haochang)
-- [hakimio](https://github.com/hakimio)
-- [artoliukkonen](https://github.com/artoliukkonen)
-- [pecirep](https://github.com/pecirep)
-- [miguel-a-calles-mba](https://github.com/miguel-a-calles-mba)
+- everyone from fullstack-serverless
 
 ## Credits
-Forked from the [**serverless-api-cloudfront**](https://github.com/Droplr/serverless-api-cloudfront/)  
-Borrowed heavily from the [**serverless-finch**](https://github.com/fernando-mc/serverless-finch/)  
-Initial CloudFormation template from [**Full Stack Serverless Web Apps with AWS**](https://medium.com/99xtechnology/full-stack-serverless-web-apps-with-aws-189d87da024a/)  
-Inspiration from [**serverless-stack.com**](https://serverless-stack.com/)
+Forked from the [**fullstack-serverless**](https://github.com/MadSkills-io/fullstack-serverless)

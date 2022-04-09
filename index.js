@@ -18,7 +18,7 @@ class ServerlessFullstackPlugin {
 
         this.error = serverless.classes.Error;
         this.serverless = serverless;
-        this.options = serverless.service.custom.fullstack;
+        this.options = serverless.service.custom['fs-sls'];
         this.cliOptions = cliOptions || {};
         this.aws = this.serverless.getProvider('aws');
 
@@ -385,10 +385,11 @@ class ServerlessFullstackPlugin {
     }
 
     prepareOrigins(distributionConfig) {
-        this.serverless.cli.log(`Setting ApiGateway stage to '${this.getStage()}'...`);
+        const originPath = this.getConfig('originPath', `/${this.getStage()}`);
+        this.serverless.cli.log(`Setting ApiGateway stage to '${originPath}'...`);
         for (var origin of distributionConfig.Origins) {
             if (origin.Id === 'ApiGateway') {
-                origin.OriginPath = `/${this.getStage()}`;
+                origin.OriginPath = originPath;
             }
         }
         
@@ -551,7 +552,7 @@ class ServerlessFullstackPlugin {
     }
 
     getConfig(field, defaultValue) {
-        return _.get(this.serverless, `service.custom.fullstack.${field}`, defaultValue)
+        return _.get(this.serverless, `service.custom.fs-sls.${field}`, defaultValue)
     }
 
     getStage() {
