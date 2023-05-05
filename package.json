@@ -1,30 +1,22 @@
 {
-  "name": "@animus-bi/fs-sls",
-  "version": "0.9.1-beta.2",
+  "name": "export-serverless",
+  "version": "0.9.1-c3ece4c8.1",
   "engines": {
     "node": ">=4.0"
   },
   "description": "Deploy a fullstack serverless web app (including React, Angular, Node.js, Python) with an AWS CloudFront distribution in front of your API Gateway and static content from S3. Use your own custom domain, SSL from AWS, and AWS Web Application Firewall.",
   "author": "Animus-BI",
   "license": "MIT",
-  "homepage": "https://github.com/animus-bi/fs-sls.git",
+  "homepage": "https://github.com/anonflux/export-serverless",
   "repository": {
     "type": "git",
-    "url": "https://github.com/animus-bi/fs-sls.git"
+    "url": "https://github.com/anonflux/export-serverless.git"
   },
   "keywords": [
     "serverless",
-    "fullstack",
-    "full stack",
+    "configuration",
+    "export",
     "serverless plugin",
-    "api gateway",
-    "cloudfront",
-    "s3",
-    "cloudformation",
-    "lambda",
-    "aws",
-    "aws lambda",
-    "amazon web services",
     "serverless.com"
   ],
   "main": "index.js",
