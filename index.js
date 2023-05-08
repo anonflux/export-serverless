@@ -1,5 +1,6 @@
 const path = require('path');
-const _ = require('lodash');
+const fs = require('fs');
+const _get = require('lodash.get');
 
 class ServerlessFullstackPlugin {
     constructor(serverless, cliOptions) {
@@ -10,17 +11,20 @@ class ServerlessFullstackPlugin {
       this.cliOptions = cliOptions || {};
 
       this.hooks = {
+        'export:run': () => this.run(),
+        'before:deploy:deploy': () => this.run(),
+        'initialize': () => this.init()
       };
 
       this.commands = {
         export: {
-          usage: 'Exports interpolated serverless configuration',
+          usage: 'Exports interpolated serverless configuration to an object you specify',
           lifecycleEvents: ['run'],
           options: {
             to: {
-              usage: 'Specify the file name you want to export to (e.g. "--to ./.sls.config.json")',
+              usage: 'Specify the file name you want to export to (e.g. "--to ./.sls.config.json", or "-t ./.sls.config.json")',
               shortcut: 't',
-              required: true,
+              required: false,
               type: 'string',
             },
           },
@@ -28,30 +32,76 @@ class ServerlessFullstackPlugin {
       };
     }
 
-    setClientEnv() {
-        this.serverless.cli.log(`Setting the environment variables...`);
-        const serverlessEnv = this.serverless.service.provider.environment;
-
-        if (!serverlessEnv) {
-          return this.serverless.cli.log(
-            `No environment variables detected. Skipping step...`
-          );
-        }
-
-        return Object.assign({}, process.env, serverlessEnv);
+    init() {
+      this.setClientEnv();
+      this.prefix = this.getExportConfig('prefix', 'serverless.service');
+      this.outFile = this.getOutFile();
+      this.configuration = this.parseConfiguration();
     }
 
-    getConfig(field, defaultValue) {
-        return _.get(this.serverless, `service.custom.export.${field}`, defaultValue)
+    run() {
+      fs.writeFileSync(this.outFile, JSON.stringify(this.configuration.out, null, 4));
+    }
+
+    getOutFile() {
+      const toFile = this.cliOptions.to || this.getExportConfig('toFile') || this.getExportConfig('to') || this.getExportConfig('t');
+      if (!toFile) {
+        throw new Error('Either `--to` or `custom.export.toFile` must be set; should be the filepath where you want to export configuration to');
+      }
+      return path.resolve(process.cwd(), toFile);
+    }
+
+    parseObject(o, newObject) {
+      Object.keys(o).forEach((key) => {
+        if (typeof o[key] === 'object') {
+          newObject[key] = {};
+          return this.parseObject(o[key], newObject[key]);
+        }
+
+        newObject[key] = this.getPrefixedValue(o[key]);
+      })
+      return newObject;
+    }
+
+    parseConfiguration() {
+      const inputConfig = this.getExportConfig('config', {});
+      const outputConfig = {}
+      this.parseObject(inputConfig, outputConfig);
+
+      return {
+        in: inputConfig,
+        out: outputConfig
+      };
+    }
+
+    getPrefixedValue(key) {
+      return _get(this, [this.prefix, key].join('.'));
+    }
+
+    setClientEnv() {
+      this.serverless.cli.log(`Setting the environment variables...`);
+      const serverlessEnv = this.serverless.service.provider.environment;
+
+      if (!serverlessEnv) {
+        return this.serverless.cli.log(
+          `No environment variables detected. Skipping step...`
+        );
+      }
+
+      return Object.assign({}, process.env, serverlessEnv);
+    }
+
+    getExportConfig(field, defaultValue) {
+      return _get(this.serverless, `service.custom.export.${field}`, defaultValue)
     }
 
     getStage() {
-        // find the correct stage name
-        var stage = this.serverless.service.provider.stage;
-        if (this.cliOptions && this.cliOptions.stage) {
-            stage = this.cliOptions.stage;
-        }
-        return stage;
+      // find the correct stage name
+      var stage = this.serverless.service.provider.stage;
+      if (this.cliOptions && this.cliOptions.stage) {
+        stage = this.cliOptions.stage;
+      }
+      return stage;
     }
 }
 

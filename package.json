@@ -1,6 +1,6 @@
 {
   "name": "export-serverless",
-  "version": "0.9.1-c3ece4c8.1",
+  "version": "0.9.1-beta.1",
   "engines": {
     "node": ">=4.0"
   },
