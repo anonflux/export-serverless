@@ -88,7 +88,13 @@ class ServerlessFullstackPlugin {
         );
       }
 
-      return Object.assign({}, process.env, serverlessEnv);
+      Object.keys(serverlessEnv).forEach((key) => {
+        if (!serverlessEnv[key]) {
+          serverlessEnv[key] = process.env[key];
+        }
+      });
+    
+      return serverlessEnv;
     }
 
     getExportConfig(field, defaultValue) {
